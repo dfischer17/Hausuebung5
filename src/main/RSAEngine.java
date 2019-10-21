@@ -6,131 +6,102 @@
 package main;
 
 import java.math.BigInteger;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  *
  * @author dfischer17
  */
 public class RSAEngine {
-    private int p;
-    private int q;
+
+    // zwei unterschiedliche Primzahlen
+    private BigInteger pn1;
+    private BigInteger pn2;
+
+    // Modul (p * q)
     private BigInteger N;
+
+    // Exponent fuer oeffentlichen Schluessel (kann frei gewählt werden)
     private BigInteger e;
+
+    // Eulersche φ-Funktion von n
+    private BigInteger φ;
+
+    // verwendet für privaten Schluessel
     private BigInteger d;
 
     public RSAEngine(int p, int q) {
-        this.p = p;
-        this.q = q;
-        this.N = BigInteger.valueOf(p * q);
-        
-        // e
-        BigInteger amountOfStrangeNdividers = BigInteger.valueOf((p - 1) * (q - 1));
-        for (int i = 2; i < amountOfStrangeNdividers.intValue(); i++) {
-            if (isPrime(i) && i < amountOfStrangeNdividers.intValue()) {
-                this.e = BigInteger.valueOf(i);
-                break;
-            }
+        this.pn1 = BigInteger.valueOf(p);
+        this.pn2 = BigInteger.valueOf(q);
+        this.N = pn1.multiply(pn2);
+        this.e = BigInteger.valueOf(23);
+        this.φ = (pn1.subtract(BigInteger.ONE)).multiply(pn2.subtract(BigInteger.ONE));
+
+        // Ueberpruefung ob der ggt von φ und e == 1 ist
+        if (!φ.gcd(this.e).equals(BigInteger.ONE)) {
+            System.err.println("Wert der φ-Funktion ist nicht teilerfremd zu e!");
         }
-        
-        // d
-        this.d = this.e.modInverse(amountOfStrangeNdividers);
+
+        this.d = e.modInverse(φ);
     }
-    
+
     public static void main(String[] args) {
         RSAEngine rsa = new RSAEngine(11, 13);
-        System.out.println("p " + rsa.getP());
-        System.out.println("q " + rsa.getQ());
-        System.out.println("N " + rsa.getN());
-        System.out.println("e " + rsa.getE());
-        System.out.println("d " + rsa.getD());
         
-        System.out.println(rsa.encryptNumber(7));
+        // encrypt/decrypt number test
+        BigInteger encrypted = rsa.encryptNumber(100);        
+        int decrypted = rsa.decryptNumber(encrypted);
     }
-    
+
     public BigInteger encryptNumber(int plain) {
-        BigInteger b = new BigInteger(String.valueOf(plain));
-        BigInteger temp = new BigInteger(String.valueOf(b.pow(e.intValue()).mod(N)));
-        return temp;
+        BigInteger temp = new BigInteger(String.valueOf(plain));
+        return temp.pow(e.intValue()).mod(N);
     }
-    
+
     public int decryptNumber(BigInteger encrypted) {
-        return 0;
-        
+        return encrypted.pow(d.intValue()).mod(N).intValue();
     }
-    
+
     public BigInteger encryptChar(char plain) {
-        return null;
-        
+        BigInteger temp = BigInteger.valueOf(plain);
+        return temp.pow(e.intValue()).mod(N);
     }
-    
-    public BigInteger decryptChar(char plain) {
-        return null;
-        
+
+    public char decryptChar(BigInteger encrypted) {
+        return (char) encrypted.pow(d.intValue()).mod(N).intValue();
     }
-    
+
     public BigInteger[] encryptString(String plain) {
-        return null;
-    }
-    
-    public String decryptString(BigInteger[] encrypted) {
-        return null;
+        String[] temp = plain.split("");
+        BigInteger[] encrypted = new BigInteger[temp.length];
         
-    }
-    
-    private static void createPublicKey() {
-        try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(2048);
-            
-            KeyPair kp = kpg.generateKeyPair();
-            
-            // Schluessel ausgeben
-            System.out.println("public key: " + kp.getPublic().getEncoded());
-            System.out.println("private key: " + kp.getPrivate());
-            
-            
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(RSAEngine.class.getName()).log(Level.SEVERE, null, ex);
+        for (int i = 0; i < encrypted.length; i++) {
+            encrypted[i] = BigInteger.valueOf(Long.valueOf(temp[i])).pow(e.intValue()).mod(N);        
         }
+        
+        return encrypted;
+    }
+
+    public String decryptString(BigInteger[] encrypted) {
+        Stream<BigInteger> myStream = Arrays.stream(encrypted);
+        
+        myStream.map(n -> {
+            return n.pow(d.intValue()).mod(N);
+        });
+        
+        BigInteger[] decrypted = (BigInteger[]) myStream.toArray();
+        String[] plain = new String[encrypted.length];
+        
+        for (int i = 0; i < encrypted.length; i++) {
+            plain[i] = encrypted[i].toString();            
+        }
+                
+        return Arrays.toString(plain);
     }
 
     public BigInteger getN() {
         return N;
-    }
-    
-    private boolean isPrime(int p) {
-        if (p < 2) {
-            return false;
-        } else {
-            for (int i = 2; i < p; i++) {
-                if (p % i == 0) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public double getP() {
-        return p;
-    }
-
-    public void setP(int p) {
-        this.p = p;
-    }
-
-    public double getQ() {
-        return q;
-    }
-
-    public void setQ(int q) {
-        this.q = q;
     }
 
     public BigInteger getE() {
@@ -139,5 +110,5 @@ public class RSAEngine {
 
     public BigInteger getD() {
         return d;
-    } 
+    }
 }
