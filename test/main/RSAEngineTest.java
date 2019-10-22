@@ -44,13 +44,11 @@ public class RSAEngineTest {
     @Test
     public void testEncryptNumber() {
         System.out.println("encryptNumber");
-        int plain = 0;
-        RSAEngine instance = null;
-        BigInteger expResult = null;
+        int plain = 1256;
+        RSAEngine instance = new RSAEngine(641, 643);
+        BigInteger expResult = BigInteger.valueOf(131383);
         BigInteger result = instance.encryptNumber(plain);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -59,13 +57,11 @@ public class RSAEngineTest {
     @Test
     public void testDecryptNumber() {
         System.out.println("decryptNumber");
-        BigInteger encrypted = null;
-        RSAEngine instance = null;
-        int expResult = 0;
+        BigInteger encrypted = BigInteger.valueOf(131383);
+        RSAEngine instance = new RSAEngine(641, 643);
+        int expResult = 1256;
         int result = instance.decryptNumber(encrypted);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -74,8 +70,8 @@ public class RSAEngineTest {
     @Test
     public void testEncryptChar() {
         System.out.println("encryptChar");
-        char plain = ' ';
-        RSAEngine instance = null;
+        char plain = 'c';
+        RSAEngine instance = new RSAEngine(plain, plain);
         BigInteger expResult = null;
         BigInteger result = instance.encryptChar(plain);
         assertEquals(expResult, result);
@@ -127,46 +123,4 @@ public class RSAEngineTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-
-    /**
-     * Test of getN method, of class RSAEngine.
-     */
-    @Test
-    public void testGetN() {
-        System.out.println("getN");
-        RSAEngine instance = null;
-        BigInteger expResult = null;
-        BigInteger result = instance.getN();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getE method, of class RSAEngine.
-     */
-    @Test
-    public void testGetE() {
-        System.out.println("getE");
-        RSAEngine instance = null;
-        BigInteger expResult = null;
-        BigInteger result = instance.getE();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getD method, of class RSAEngine.
-     */
-    @Test
-    public void testGetD() {
-        System.out.println("getD");
-        RSAEngine instance = null;
-        BigInteger expResult = null;
-        BigInteger result = instance.getD();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }    
 }
